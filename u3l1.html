@@ -81,7 +81,7 @@ a.main{display:block;text-align:center;text-decoration:none}
 var LESSON="U3L1", HEAD="Unit 3 · Lesson 1", SUB="Hello! Can I speak to Joe? 📞", HELLO="Hello. Can I speak to Joe?";
 var FORM_URL="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAMAAAS7PIJUNTBIV0I2QklKREs1VkE2UUlCVVIyMkVVOS4u";
 var F={name:"r4be6bddd4aaf40d8b4f6b7aa2826e15e",cls:"r7134fc5c7a67458ea822849ce46ec835",lesson:"r36ddfcd3294746139e5da8cfed0b7372",score:"r858d58c662cf4e6e8221f2676323d534",wrong:"rdc2ee4dec1234b8ea3989ccfa1f94c14"};
-var Q=[{"t": "mc", "k": "listen", "opts": ["Hello. Can I speak to Joe?", "Hello. How are you?", "Good-bye."], "ans": 0, "say": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "listen", "opts": ["Speaking.", "Sleeping.", "Speak up!"], "ans": 0, "say": "Speaking."}, {"t": "mc", "k": "listen", "opts": ["It's Labeeb. What are you doing?", "It's Joe. How are you?", "It's hot."], "ans": 0, "say": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "reply", "opts": ["Speaking.", "I'm hot.", "He's watching TV."], "ans": 0, "show": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "reply", "opts": ["Hi, Labeeb! I'm doing my homework.", "Speaking.", "He's watching TV."], "ans": 0, "show": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "reply", "opts": ["He's watching TV.", "I'm doing my homework.", "Speaking."], "ans": 0, "show": "What's your dad doing?"}, {"t": "build", "words": ["Can", "I", "speak", "to", "Joe?"]}, {"t": "build", "words": ["What", "are", "you", "doing?"]}, {"t": "build", "words": ["I'm", "doing", "my", "homework."]}, {"t": "build", "words": ["He's", "watching", "TV."]}, {"t": "mc", "k": "fill", "opts": ["speak", "sleep", "eat"], "ans": 0, "show": "Hello. Can I ___ to Joe?", "say": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "fill", "opts": ["doing", "does", "do"], "ans": 0, "show": "It's Labeeb. What are you ___?", "say": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "fill", "opts": ["ph", "f"], "ans": 0, "show": "The ele___ant is big.", "say": "elephant"}, {"t": "mc", "k": "fill", "opts": ["ph", "sh"], "ans": 0, "show": "This is a ___oto.", "say": "photo"}];
+var Q=[{"t": "mc", "k": "listen", "opts": ["Hello. Can I speak to Joe?", "Hello. How are you?", "Good-bye."], "ans": 0, "say": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "listen", "opts": ["Speaking.", "Sleeping.", "Speak up!"], "ans": 0, "say": "Speaking."}, {"t": "mc", "k": "listen", "opts": ["It's Labeeb. What are you doing?", "It's Joe. How are you?", "It's hot."], "ans": 0, "say": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "reply", "opts": ["Speaking.", "I'm hot.", "He's watching TV."], "ans": 0, "show": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "reply", "opts": ["Hi, Labeeb! I'm doing my homework.", "Speaking.", "He's watching TV."], "ans": 0, "show": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "reply", "opts": ["He's watching TV.", "I'm doing my homework.", "Speaking."], "ans": 0, "show": "What's your dad doing?"}, {"t": "build", "words": ["Can", "I", "speak", "to", "Joe?"]}, {"t": "build", "words": ["What", "are", "you", "doing?"]}, {"t": "build", "words": ["I'm", "doing", "my", "homework."]}, {"t": "build", "words": ["He's", "watching", "TV."]}, {"t": "mc", "k": "fill", "opts": ["speak", "sleep", "eat"], "ans": 0, "show": "Hello. Can I ___ to Joe?", "say": "Hello. Can I speak to Joe?"}, {"t": "mc", "k": "fill", "opts": ["doing", "does", "do"], "ans": 0, "show": "It's Labeeb. What are you ___?", "say": "It's Labeeb. What are you doing?"}, {"t": "mc", "k": "fill", "opts": ["ph", "f"], "ans": 0, "show": "The ele___ant is big.", "say": "elephant"}, {"t": "mc", "k": "fill", "opts": ["ph", "sh"], "ans": 0, "show": "This is a ___oto.", "say": "photo"}];var ORD=Q.map(function(_,i){return i});
 var IMG={};
 var PRAISE=["Great!","Good job!","Wow!","You were great!","Yeah!"];
 var TRY=["Try again!","Oops!","Not yet!"];
@@ -96,12 +96,31 @@ function isPic(s){return typeof s==="string"&&s.indexOf("img:")===0}
 function picEl(s){var n=s.slice(4);return el("img",{class:"pimg",src:IMG[n]||"",alt:n,draggable:"false"})}
 function isEmo(s){return /^[←-⯿\u{1F000}-\u{1FFFF}️‍]+$/u.test(s)}
 
+var VOICE=null;
+function pickVoice(){
+  try{
+    var vs=window.speechSynthesis.getVoices()||[];if(!vs.length)return;
+    var best=null;
+    vs.forEach(function(v){var l=(v.lang||"").replace("_","-").toLowerCase();
+      if(l==="en-us"&&!best)best=v;
+    });
+    if(!best)vs.forEach(function(v){if(!best&&(v.lang||"").toLowerCase().indexOf("en")===0)best=v});
+    VOICE=best;
+  }catch(e){}
+}
+try{if(window.speechSynthesis){pickVoice();window.speechSynthesis.onvoiceschanged=pickVoice}}catch(e){}
 function speak(text){
   try{
     if(!window.speechSynthesis)return;
     window.speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.8;u.pitch=1.1;
-    window.speechSynthesis.speak(u);
+    if(!VOICE)pickVoice();
+    setTimeout(function(){
+      try{
+        var u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.75;u.pitch=1;
+        if(VOICE)u.voice=VOICE;
+        window.speechSynthesis.speak(u);
+      }catch(e){}
+    },80);
   }catch(e){}
 }
 var ctx=null;
@@ -128,7 +147,7 @@ function render(){
   app.textContent="";
   if(S.step<0)return renderStart();
   if(S.step>=Q.length)return renderEnd();
-  var q=Q[S.step];
+  var q=Q[ORD[S.step]];
   app.appendChild(topbar());
   var card=el("div",{class:"card"});
   var fb=el("div",{class:"fb"});
@@ -138,7 +157,7 @@ function render(){
     if(locked)return;locked=true;
     beep(ok);
     if(ok){S.score++;fb.className="fb ok";fb.textContent=pick(PRAISE)+" ⭐"}
-    else{S.wrong.push(S.step+1);fb.className="fb bad";fb.textContent=pick(TRY)}
+    else{S.wrong.push(ORD[S.step]+1);fb.className="fb bad";fb.textContent=pick(TRY)}
     next.removeAttribute("disabled");
     if(typeof detail==="function")detail();
   }
@@ -166,6 +185,7 @@ function render(){
   if(q.t==="build"){
     var words=q.words;
     card.appendChild(listenBtn(q.say||words.join(" ")));
+    if(q.pic&&isPic(q.pic))card.appendChild(picEl(q.pic));
     var slots=el("div",{class:"slots"}),tray=el("div",{class:"tray"});
     var chosen=[];
     var check=el("button",{class:"main",type:"button",text:"Check"});
@@ -253,7 +273,7 @@ function renderStart(){
   var go=el("button",{class:"main",type:"button",text:"Let's start!",onclick:function(){
     var n=name.value.trim();
     if(!n){name.focus();name.style.borderColor="var(--bad)";return}
-    S.name=n;S.cls=cls.value.trim();S.step=0;
+    S.name=n;S.cls=cls.value.trim();ORD=shuffle(Q.map(function(_,i){return i}));S.step=0;
     speak(HELLO);render();
   }});
   app.appendChild(el("div",{class:"card"},[
@@ -278,7 +298,7 @@ function renderEnd(){
     el("div",{class:"stars",text:stars}),
     el("div",{class:"fb ok",text:msg}),
     status,
-    el("button",{class:"main",type:"button",text:"Play again",onclick:function(){S.step=0;S.score=0;S.wrong=[];render()}})
+    el("button",{class:"main",type:"button",text:"Play again",onclick:function(){ORD=shuffle(Q.map(function(_,i){return i}));S.step=0;S.score=0;S.wrong=[];render()}})
   ]));
   var q=function(k,v){return "&"+k+"="+encodeURIComponent(v)};
   var url=FORM_URL+q(F.name,S.name)+q(F.cls,S.cls||"-")+q(F.lesson,LESSON)+q(F.score,S.score+"/"+total)+q(F.wrong,S.wrong.join(",")||"none");
